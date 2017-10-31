@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityEngine.UI;
 using UnityEditor;
+using System.Linq;
 
 public class InputDetection : MonoBehaviour {
     List<string> m_inputList = new List<string>();
+    List<string> m_detectionList = new List<string>();
     System.Text.StringBuilder m_builder = new System.Text.StringBuilder();
     public Text m_messageText;
 
@@ -18,13 +20,13 @@ public class InputDetection : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        m_builder.Remove(0, m_builder.Length);
+        m_detectionList.Clear();
 
         // CrossPlatformInputManager で入力を検出する
         foreach(var input in m_inputList)
         {
             if (CrossPlatformInputManager.GetButton(input))
-                m_builder.AppendLine(input + " detected.");
+                m_detectionList.Add(input);
         }
 
         // Input クラスで入力を検出する
@@ -32,8 +34,14 @@ public class InputDetection : MonoBehaviour {
         {
             KeyCode keyCode = (KeyCode)System.Enum.ToObject(typeof(KeyCode), i);
             if (Input.GetKey(keyCode))
-                m_builder.AppendLine(keyCode.ToString() + " detected.");
+                m_detectionList.Add(keyCode.ToString());
         }
+
+        m_detectionList = m_detectionList.Distinct().ToList();
+        m_builder.Remove(0, m_builder.Length);
+
+        foreach (var item in m_detectionList)
+            m_builder.AppendLine(item + " detected.");
 
         if (m_messageText) m_messageText.text = m_builder.ToString();
 	}
